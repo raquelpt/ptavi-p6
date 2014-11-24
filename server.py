@@ -1,86 +1,69 @@
 #!/usr/bin/python
 # -*- coding: iso-8859-15 -*-
 """
-Clase (y programa principal) para un servidor de eco en UDP simple
+Programa cliente que abre un socket a un servidor
 """
 
-import SocketServer
+import socket
 import sys
-import os
 
-try:	
-	if len(sys.argv) != 4:
-		raise IndexError
-	except IndexError:
-		print "Usage: python server.py IP port audio_file"
-		raise SystemExit
-	
+# Comprobamos si es correcto el numero de argumentos pasados
 
-IP = sys.argv[1]
+if len(sys.argv) != 3:
+	print "Usage: python client.py method receiver@IP:SIPport"
+	raise SystemExit
 
-FICHERO_AUDIO = sys.argv[3]	
+# Cliente UDP simple.
+try:
 
-# Puerto en el que escuchamos
+	lista = sys.argv
+	METODO = lista[1].upper()
+	Direccion = lista[2]
 
-PORT = int(sys.argv[2])
+	# Dirección IP del servidor.
 
-try: 
-	 audio = open (FICHERO_AUDIO, 'r')
-	except IOError:
-		print "Audio file doesn't exist"
-		raise SystemExit
+	SERVER = Direccion[1].split("@").split(":")[0]
+	PORT = int(Direccion.split("@")[1].split(":")[1])
 
+except IndexError:
+	print "Usage: python client.py method receiver@IP:SIPport"
+	raise SystemExit
+except ValueError:
+	print "Usage: python client.py method receiver@IP:SIPport"
+	raise SystemExit
 
+# Contenido que vamos a enviar
 
-# Damos permiso de ejecución a RTP
-os.system("chmod +x mp32rtp")
+LINE =  METODO + " sip:" + Direccion.split(":")[0] + " SIP/2.0\r\n\r\n"
 
-class EchoHandler(SocketServer.DatagramRequestHandler):
-    """
-    Echo server class
-    """
-
-	def handle(self):
-		
-        self.wfile.write("Hemos recibido tu peticion")
-        while 1:
-            # Leyendo línea a línea lo que nos envía el cliente
-            line = self.rfile.read()
-            print "El cliente nos manda " + line
-
-            # Si no hay más líneas salimos del bucle infinito
-            if not line:
-                break
-			
-			# Seleccionamos la respuesta correcta
-
-			Metodo = line.split(" ")[0]
-			if Metodo == "INVITE":
-				Answer = "SIP/2.0 100 Trying\r\n\r\n"
-				Answer += "SIP/2.0 180 Ring\r\n\r\n"
-				Answer += "SIP/2.0 200 OK\r\n\r\n"
-			
-			elif Metodo == "ACK":
-				print "Tratamiento ACK"
-				aEjecutar = "./mp32rtp -i 127.0.0.1 -p 23032 < " + FICHERO_AUDIO
-				print "Vamos a ejecutar", aEjecutar
-				os.system (aEjecutar)
-			elif Metodo == "BYE":
-				print "Tratamiento BYE"
-				Answer = "SIP/2.0 200 OK\r\n\r\n"
-		
-
-			# Imprimimos la respuesta y la enviamos
-
-			if  Metodo != "ACK":
-				print "Enviamos:" + Answer
-				self.wfile.write(Answer)
-
-if __name__ == "__main__":
+# Creamos el socket, lo configuramos y lo atamos a un servidor/puerto
+my_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+my_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+my_socket.connect((SERVER, PORT))
 
 
-    # Creamos servidor de eco y escuchamos
+print "Enviando: " + LINE
+my_socket.send(LINE)
+try:
+	data = my_socket.recv(1024)
+except socket.error:
+	print 'Error: No server listening at ' + SERVER + ' port ' + PORT
+	raise SystemExit
 
-    serv = SocketServer.UDPServer(("", PORT), EchoHandler)
-    print "Listening..."
-    serv.serve_forever()
+print 'Recibido --', data
+line = data.split('\r\n\r\n')[:-1]
+
+if line == ["SIP/2.0 100 Trying", "SIP/2.0 180 Ring", "SIP/2.0 200 OK"]:
+	LINE = "ACK sip:" + Direccion.split(":")[0] + " SIP/2.0\r\n\r\n"
+	my_socket.send(LINE)
+elif line == ["SIP/2.0 400 Bad Request"]:
+	print "El servidor no entiende la petición"
+
+elif line == ["SIP/2.0 405 Method Not Allowed"]:
+	print "Enviado metodo incorrecto"
+
+print "Terminando socket..."
+
+# Cerramos todo
+my_socket.close()
+print "Fin."
