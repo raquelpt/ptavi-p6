@@ -16,13 +16,12 @@ if len(sys.argv) != 3:
 # Cliente UDP simple.
 try:
 
-	lista = sys.argv
-	METODO = lista[1].upper()
-	Direccion = lista[2]
+	METODO = sys.argv[1].upper()
+	Direccion = sys.argv[2]
 
 	# Dirección IP del servidor.
 
-	SERVER = Direccion[1].split("@").split(":")[0]
+	SERVER = Direccion.split("@")[1].split(":")[0]
 	PORT = int(Direccion.split("@")[1].split(":")[1])
 
 except IndexError:
