@@ -39,7 +39,6 @@ class EchoHandler(SocketServer.DatagramRequestHandler):
 
     def handle(self):
 
-        self.wfile.write("Hemos recibido tu peticion")
         while 1:
             # Leyendo línea a línea lo que nos envía el cliente
             line = self.rfile.read()
@@ -56,7 +55,7 @@ class EchoHandler(SocketServer.DatagramRequestHandler):
                         line.split(" ")[2] == 'SIP/2.0\r\n\r\n':
 
                     Answer = "SIP/2.0 100 Trying\r\n\r\n"
-                    Answer += "SIP/2.0 180 Ring\r\n\r\n"
+                    Answer += "SIP/2.0 180 Ringing\r\n\r\n"
                     Answer += "SIP/2.0 200 OK\r\n\r\n"
 
                 elif Metodo == "ACK":
