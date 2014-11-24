@@ -10,30 +10,30 @@ import sys
 # Comprobamos si es correcto el numero de argumentos pasados
 
 if len(sys.argv) != 3:
-	print "Usage: python client.py method receiver@IP:SIPport"
-	raise SystemExit
+    print "Usage: python client.py method receiver@IP:SIPport"
+    raise SystemExit
 
 # Cliente UDP simple.
 try:
 
-	METODO = sys.argv[1].upper()
-	Direccion = sys.argv[2]
+    METODO = sys.argv[1].upper()
+    Direccion = sys.argv[2]
 
-	# Dirección IP del servidor.
+    # Dirección IP del servidor.
 
-	SERVER = Direccion.split("@")[1].split(":")[0]
-	PORT = int(Direccion.split("@")[1].split(":")[1])
+    SERVER = Direccion.split("@")[1].split(":")[0]
+    PORT = int(Direccion.split("@")[1].split(":")[1])
 
 except IndexError:
-	print "Usage: python client.py method receiver@IP:SIPport"
-	raise SystemExit
+    print "Usage: python client.py method receiver@IP:SIPport"
+    raise SystemExit
 except ValueError:
-	print "Usage: python client.py method receiver@IP:SIPport"
-	raise SystemExit
+    print "Usage: python client.py method receiver@IP:SIPport"
+    raise SystemExit
 
 # Contenido que vamos a enviar
 
-LINE =  METODO + " sip:" + Direccion.split(":")[0] + " SIP/2.0\r\n\r\n"
+LINE = METODO + " sip:" + Direccion.split(":")[0] + " SIP/2.0\r\n\r\n"
 
 # Creamos el socket, lo configuramos y lo atamos a un servidor/puerto
 my_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -44,22 +44,22 @@ my_socket.connect((SERVER, PORT))
 print "Enviando: " + LINE
 my_socket.send(LINE)
 try:
-	data = my_socket.recv(1024)
+    data = my_socket.recv(1024)
 except socket.error:
-	print 'Error: No server listening at ' + SERVER + ' port ' + PORT
-	raise SystemExit
+    print 'Error: No server listening at ' + SERVER + ' port ' + PORT
+    raise SystemExit
 
 print 'Recibido --', data
 line = data.split('\r\n\r\n')[:-1]
 
 if line == ["SIP/2.0 100 Trying", "SIP/2.0 180 Ring", "SIP/2.0 200 OK"]:
-	LINE = "ACK sip:" + Direccion.split(":")[0] + " SIP/2.0\r\n\r\n"
-	my_socket.send(LINE)
+    LINE = "ACK sip:" + Direccion.split(":")[0] + " SIP/2.0\r\n\r\n"
+    my_socket.send(LINE)
 elif line == ["SIP/2.0 400 Bad Request"]:
-	print "El servidor no entiende la petición"
+    print "El servidor no entiende la petición"
 
 elif line == ["SIP/2.0 405 Method Not Allowed"]:
-	print "Enviado metodo incorrecto"
+    print "Enviado metodo incorrecto"
 
 print "Terminando socket..."
 
