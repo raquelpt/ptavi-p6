@@ -46,13 +46,13 @@ my_socket.send(LINE)
 try:
     data = my_socket.recv(1024)
 except socket.error:
-    print 'Error: No server listening at ' + SERVER + ' port ' + PORT
+    print ('Error:No server listening at ' + str(SERVER) + ' port ' + int(PORT))
     raise SystemExit
 
 print 'Recibido --', data
 line = data.split('\r\n\r\n')[:-1]
 
-if line == ["SIP/2.0 100 Trying", "SIP/2.0 180 Ring", "SIP/2.0 200 OK"]:
+if line == ["SIP/2.0 100 Trying", "SIP/2.0 180 Ringing", "SIP/2.0 200 OK"]:
     LINE = "ACK sip:" + Direccion.split(":")[0] + " SIP/2.0\r\n\r\n"
     my_socket.send(LINE)
 elif line == ["SIP/2.0 400 Bad Request"]:
