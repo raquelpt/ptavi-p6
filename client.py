@@ -33,9 +33,10 @@ my_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 my_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 my_socket.connect((SERVER, PORT))
 
+
+print "Enviando: " + LINE
+my_socket.send(LINE)
 try:
-	print "Enviando: " + LINE
-	my_socket.send(LINE)
 	data = my_socket.recv(1024)
 	except socket.error:
 	print 'Error: No server listening at ' + SERVER + ' port ' + PORT
