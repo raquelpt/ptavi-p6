@@ -43,21 +43,20 @@ class EchoHandler(SocketServer.DatagramRequestHandler):
         while 1:
             # Leyendo línea a línea lo que nos envía el cliente
             line = self.rfile.read()
-            print "El cliente nos manda " + line
 
             # Si no hay más líneas salimos del bucle infinito
             if not line:
                 break
 
             # Seleccionamos la respuesta correcta
-
+            print "El cliente nos manda " + line
             Metodo = line.split(" ")[0]
             if Metodo == "INVITE" or Metodo == "ACK" or Metodo == "BYE":
                 if Metodo == "INVITE" and \
                         line.split(" ")[2] == 'SIP/2.0\r\n\r\n':
 
                     Answer = "SIP/2.0 100 Trying\r\n\r\n"
-                    Answer += "SIP/2.0 180 Ringing\r\n\r\n"
+                    Answer += "SIP/2.0 180 Ring\r\n\r\n"
                     Answer += "SIP/2.0 200 OK\r\n\r\n"
 
                 elif Metodo == "ACK":
