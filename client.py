@@ -21,8 +21,8 @@ try:
 
     # Dirección IP del servidor.
 
-    SERVER = Direccion.split("@")[1].split(":")[0]
-    PORT = int(Direccion.split("@")[1].split(":")[1])
+    SERVER = sys.argv[2].split("@")[1].split(":")[0]
+    PORT = int(sys.argv[2].split("@")[1].split(":")[1])
 
 except IndexError:
     print "Usage: python client.py method receiver@IP:SIPport"
@@ -52,7 +52,7 @@ except socket.error:
 print 'Recibido --', data
 line = data.split('\r\n\r\n')[:-1]
 
-if line == ["SIP/2.0 100 Trying", "SIP/2.0 180 Ringing", "SIP/2.0 200 OK"]:
+if line == ["SIP/2.0 100 Trying", "SIP/2.0 180 Ring", "SIP/2.0 200 OK"]:
     LINE = "ACK sip:" + Direccion.split(":")[0] + " SIP/2.0\r\n\r\n"
     my_socket.send(LINE)
 elif line == ["SIP/2.0 400 Bad Request"]:
