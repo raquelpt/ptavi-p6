@@ -14,15 +14,23 @@ if len(sys.argv) != 3:
 	raise SystemExit
 
 # Cliente UDP simple.
+try:
 
-lista = sys.argv
-METODO = lista[1].upper()
-Direccion = lista[2]
+	lista = sys.argv
+	METODO = lista[1].upper()
+	Direccion = lista[2]
 
-# Dirección IP del servidor.
+	# Dirección IP del servidor.
 
-SERVER = Direccion[1].split("@").split(":")[0]
-PORT = int(Direccion.split("@")[1].split(":")[1])
+	SERVER = Direccion[1].split("@").split(":")[0]
+	PORT = int(Direccion.split("@")[1].split(":")[1])
+
+except IndexError:
+	print "Usage: python client.py method receiver@IP:SIPport"
+	raise SystemExit
+except ValueError:
+	print "Usage: python client.py method receiver@IP:SIPport"
+	raise SystemExit
 
 # Contenido que vamos a enviar
 
@@ -38,7 +46,7 @@ print "Enviando: " + LINE
 my_socket.send(LINE)
 try:
 	data = my_socket.recv(1024)
-	except socket.error:
+except socket.error:
 	print 'Error: No server listening at ' + SERVER + ' port ' + PORT
 	raise SystemExit
 
